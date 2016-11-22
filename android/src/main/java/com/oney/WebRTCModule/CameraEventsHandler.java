@@ -1,5 +1,7 @@
 package com.oney.WebRTCModule;
 
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.webrtc.VideoCapturerAndroid;
@@ -14,7 +16,7 @@ class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
             // You can also include some extra data.
             Log.v(TAG, "SENT CAMERA ID: " + cameraId);
             intent.putExtra("message", cameraId);
-            LocalBroadcastManager.getInstance(staticContext).sendBroadcast(intent);
+            LocalBroadcastManager.getInstance(WebRTCModule.staticContext).sendBroadcast(intent);
         }
     }
 
