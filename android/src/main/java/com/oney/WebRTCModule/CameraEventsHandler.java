@@ -7,6 +7,17 @@ import org.webrtc.VideoCapturerAndroid;
 class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
     private final static String TAG = WebRTCModule.TAG;
 
+    private void sendMessage(int cameraId) {
+        Log.d("sender", "Broadcasting message");
+        if(WebRTCModule.staticContext != null) {
+            Intent intent = new Intent("camera_id_detected");
+            // You can also include some extra data.
+            Log.v(TAG, "SENT CAMERA ID: " + cameraId);
+            intent.putExtra("message", cameraId);
+            LocalBroadcastManager.getInstance(staticContext).sendBroadcast(intent);
+        }
+    }
+
     // Camera error handler - invoked when camera can not be opened
     // or any camera exception happens on camera thread.
     @Override
@@ -24,6 +35,7 @@ class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
     @Override
     public void onCameraOpening(int cameraId) {
         Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraId=%s", cameraId));
+        sendMessage(cameraId);
     }
 
     // Callback invoked when first camera frame is available after camera is opened.

@@ -58,8 +58,12 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
     public final Map<String, MediaStreamTrack> mMediaStreamTracks;
     private final MediaConstraints pcConstraints = new MediaConstraints();
 
+    public static ReactApplicationContext staticContext;
+
     public WebRTCModule(ReactApplicationContext reactContext) {
         super(reactContext);
+
+        staticContext = reactContext;
 
         mPeerConnectionObservers = new SparseArray<PeerConnectionObserver>();
         mMediaStreams = new HashMap<String, MediaStream>();
@@ -562,7 +566,10 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             }
         }
 
-        return VideoCapturerAndroid.create(name, new CameraEventsHandler());
+        VideoCapturerAndroid capturerAndroid = VideoCapturerAndroid.create(name, new CameraEventsHandler());
+        VideoSourceContainer.getInstance().videoCapturer = capturerAndroid;
+
+        return capturerAndroid;
     }
     private MediaConstraints defaultConstraints() {
         MediaConstraints constraints = new MediaConstraints();

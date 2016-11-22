@@ -284,6 +284,8 @@ RCT_EXPORT_METHOD(getUserMedia:(NSDictionary *)constraints
     NSString *trackUUID = [[NSUUID UUID] UUIDString];
     RTCVideoTrack *videoTrack = [self.peerConnectionFactory videoTrackWithSource:videoSource trackId:trackUUID];
     [mediaStream addVideoTrack:videoTrack];
+      
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RTCVideoSourceAdded" object:nil userInfo:@{@"VideoTrack" : videoSource}];
 
     successCallback(mediaStream);
   } else {
