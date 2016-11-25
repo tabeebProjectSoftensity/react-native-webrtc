@@ -8,6 +8,7 @@ import org.webrtc.VideoCapturerAndroid;
 
 class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
     private final static String TAG = WebRTCModule.TAG;
+    private int cameraID = -1;
 
     private void sendMessage(int cameraId) {
         Log.d("sender", "Broadcasting message");
@@ -37,13 +38,14 @@ class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
     @Override
     public void onCameraOpening(int cameraId) {
         Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraId=%s", cameraId));
-        sendMessage(cameraId);
+        cameraID = cameraId;
     }
 
     // Callback invoked when first camera frame is available after camera is opened.
     @Override
     public void onFirstFrameAvailable() {
         Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable");
+        sendMessage(cameraID);
     }
 
     // Callback invoked when camera closed.
