@@ -12,7 +12,6 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.ReadableMap;
@@ -32,12 +31,8 @@ import java.util.UUID;
 import android.util.Base64;
 import android.util.SparseArray;
 import android.hardware.Camera;
-import android.media.AudioManager;
 import android.content.Context;
-import android.view.Window;
-import android.view.WindowManager;
 import android.app.Activity;
-import android.os.PowerManager;
 
 import android.opengl.EGLContext;
 import android.util.Log;
@@ -167,7 +162,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
     public void peerConnectionInit(ReadableMap configuration, int id){
         PeerConnection.RTCConfiguration config = parseRTCConfiguration(configuration);
         PeerConnectionObserver observer = new PeerConnectionObserver(this, id);
-        PeerConnection peerConnection = mFactory.createPeerConnection(config, pcConstraints, observer); 
+        PeerConnection peerConnection = mFactory.createPeerConnection(config, pcConstraints, observer);
         observer.setPeerConnection(peerConnection);
         mPeerConnectionObservers.put(id, observer);
     }
@@ -222,7 +217,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
     private MediaConstraints parseConstraints(ReadableMap constraintsMap) {
         MediaConstraints mediaConstraints = new MediaConstraints();
 
-        if (constraintsMap.getType("mandatory") == ReadableType.Map) {
+        if (constraintsMap.hasKey("mandatory") && constraintsMap.getType("mandatory") == ReadableType.Map) {
             ReadableMap mandatory = constraintsMap.getMap("mandatory");
             ReadableMapKeySetIterator keyIterator = mandatory.keySetIterator();
 
@@ -237,7 +232,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             Log.d(TAG, "mandatory constraints are not a map");
         }
 
-        if (constraintsMap.getType("optional") == ReadableType.Array) {
+        if (constraintsMap.hasKey("optional") && constraintsMap.getType("optional") == ReadableType.Array) {
             ReadableArray options = constraintsMap.getArray("optional");
 
             for (int i = 0; i < options.size(); i++) {
@@ -883,9 +878,8 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             pco.close();
             mPeerConnectionObservers.remove(id);
         }
-
-        resetAudio();
     }
+
     @ReactMethod
     public void mediaStreamRelease(final String id) {
         MediaStream mediaStream = mMediaStreams.get(id);
@@ -902,42 +896,6 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
         } else {
             Log.d(TAG, "mediaStreamRelease() mediaStream is null");
         }
-    }
-    private void resetAudio() {
-        AudioManager audioManager = (AudioManager)getReactApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setSpeakerphoneOn(true);
-        audioManager.setMode(AudioManager.MODE_NORMAL);
-    }
-    @ReactMethod
-    public void setAudioOutput(String output) {
-        AudioManager audioManager = (AudioManager)getReactApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(AudioManager.MODE_IN_CALL);
-        audioManager.setSpeakerphoneOn(output.equals("speaker"));
-    }
-    @ReactMethod
-    public void setKeepScreenOn(final boolean isOn) {
-        UiThreadUtil.runOnUiThread(new Runnable() {
-            public void run() {
-                Window window = getCurrentActivity().getWindow();
-                if (isOn) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                } else {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                }
-            }
-        });
-    }
-
-    @ReactMethod
-    public void setProximityScreenOff(boolean enabled) {
-        // TODO
-        /*
-        PowerManager powerManager = (PowerManager)getReactApplicationContext().getSystemService(Context.POWER_SERVICE);
-        if (powerManager.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) {
-            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, TAG);
-            wakeLock.setReferenceCounted(false);
-        } else {
-        }*/
     }
 
     @ReactMethod

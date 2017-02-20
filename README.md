@@ -5,6 +5,13 @@
 
 A WebRTC module for React Native.
 
+# BREAKING FOR RN 40:
+
+`master` branch needs RN >= 40 for now.
+if your RN version is under 40, use branch [rn-less-40](https://github.com/oney/react-native-webrtc/tree/rn-less-40) (npm version `0.54.7`)
+
+see [#190](https://github.com/oney/react-native-webrtc/pull/190) for detials
+
 ## Support
 - Currently support for iOS and Android.  
 - Support video and audio communication.  
@@ -30,8 +37,10 @@ the order of commit revision is nothing to do with the order of cherry-picks, fo
 | react-native-webrtc | WebRTC(ios) | WebRTC(android)  | npm published | note |
 | :-------------: | :-------------:| :-----: | :-----: | :-----: | :-----: |
 | 0.53.2 | 53 stable<br>(13317)<br>(+6-13855)<br>32/64 | 53 stable<br>(13317)<br>(+6-13855)<br>32 | :heavy_check_mark: | |
-| 0.54.3 | 54 stable<br>(13869)<br>(+6-14091)<br>32/64 | 54 stable<br>(13869)<br>(+6-14091)<br>32 | :heavy_check_mark: | |
+| 0.54.7 | 54 stable<br>(13869)<br>(+6-14091)<br>32/64 | 54 stable<br>(13869)<br>(+6-14091)<br>32 | :heavy_check_mark: | RN < 40 |
+| 1.54.7 | 54 stable<br>(13869)<br>(+6-14091)<br>32/64 | 54 stable<br>(13869)<br>(+6-14091)<br>32 | :heavy_check_mark: | RN >= 40 |
 | master | 54 stable<br>(13869)<br>(+6-14091)<br>32/64 | 54 stable<br>(13869)<br>(+6-14091)<br>32 | :warning:          | |
+| M55 | 55 stable<br>(14500)<br>(+8 15071)<br>32/64<br>w/o ipad | 55 stable<br>(14500)<br>(+8 15071)<br>32 | :warning:          | please help to check if it works. (RN < 40) |
 
 ## Installation
 
@@ -62,21 +71,31 @@ Support most WebRTC APIs, please see the [Document](https://developer.mozilla.or
 ```javascript
 var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 var pc = new RTCPeerConnection(configuration);
+
+let isFront = true;
 MediaStreamTrack.getSources(sourceInfos => {
-  var videoSourceId;
-  for (var i = 0; i < sourceInfos.length; i++) {
-    var sourceInfo = sourceInfos[i];
-    if(sourceInfo.kind == "video" && sourceInfo.facing == "front") {
+  console.log(sourceInfos);
+  let videoSourceId;
+  for (const i = 0; i < sourceInfos.length; i++) {
+    const sourceInfo = sourceInfos[i];
+    if(sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
       videoSourceId = sourceInfo.id;
     }
   }
   getUserMedia({
-    "audio": true,
-    "video": {
-      optional: [{sourceId: videoSourceId}]
+    audio: true,
+    video: {
+      mandatory: {
+        minWidth: 500, // Provide your own width, height and frame rate here
+        minHeight: 300,
+        minFrameRate: 30
+      },
+      facingMode: (isFront ? "user" : "environment"),
+      optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
     }
   }, function (stream) {
-    pc.addStream(stream);
+    console.log('dddd', stream);
+    callback(stream);
   }, logError);
 });
 
@@ -85,9 +104,11 @@ pc.createOffer(function(desc) {
     // Send pc.localDescription to peer
   }, function(e) {});
 }, function(e) {});
+
 pc.onicecandidate = function (event) {
   // send event.candidate to peer
 };
+
 // also support setRemoteDescription, createAnswer, addIceCandidate, onnegotiationneeded, oniceconnectionstatechange, onsignalingstatechange, onaddstream
 
 ```
