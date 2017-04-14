@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import org.webrtc.VideoCapturerAndroid;
+import org.webrtc.CameraVideoCapturer;
 
-class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
+class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
     private final static String TAG = WebRTCModule.TAG;
     private int cameraID = -1;
 
@@ -28,6 +28,12 @@ class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
         Log.d(TAG, String.format("CameraEventsHandler.onCameraError: errorDescription=%s", errorDescription));
     }
 
+    // Called when camera is disconnected.
+    @Override
+    public void onCameraDisconnected() {
+        Log.d(TAG, "CameraEventsHandler.onCameraDisconnected");
+    }
+
     // Invoked when camera stops receiving frames
     @Override
     public void onCameraFreezed(String errorDescription) {
@@ -36,9 +42,8 @@ class CameraEventsHandler implements VideoCapturerAndroid.CameraEventsHandler {
 
     // Callback invoked when camera is opening.
     @Override
-    public void onCameraOpening(int cameraId) {
-        Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraId=%s", cameraId));
-        cameraID = cameraId;
+    public void onCameraOpening(String cameraName) {
+        Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraName=%s", cameraName));
     }
 
     // Callback invoked when first camera frame is available after camera is opened.
