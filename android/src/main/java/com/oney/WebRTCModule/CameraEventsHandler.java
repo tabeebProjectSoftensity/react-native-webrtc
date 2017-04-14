@@ -44,12 +44,38 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
     @Override
     public void onCameraOpening(String cameraName) {
         Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraName=%s", cameraName));
+        if (cameraName.contains("front")) {
+            // Search for the front facing camera
+            int numberOfCameras = Camera.getNumberOfCameras();
+            for (int i = 0; i < numberOfCameras; i++) {
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    Log.d(TAG, "Camera front found");
+                    cameraID = i;
+                    break;
+                }
+            }
+        }
+        else {
+            // Search for the front facing camera
+            int numberOfCameras = Camera.getNumberOfCameras();
+            for (int i = 0; i < numberOfCameras; i++) {
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                    Log.d(TAG, "Camera back found");
+                    cameraID = i;
+                    break;
+                }
+            }
+        }
     }
 
     // Callback invoked when first camera frame is available after camera is opened.
     @Override
     public void onFirstFrameAvailable() {
-        Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable");
+        Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable: " + cameraID);
         sendMessage(cameraID);
     }
 
