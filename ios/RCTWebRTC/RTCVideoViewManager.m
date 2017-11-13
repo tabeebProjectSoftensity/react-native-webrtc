@@ -368,17 +368,20 @@ RCT_CUSTOM_VIEW_PROPERTY(objectFit, NSString *, RTCVideoView) {
   view.objectFit = e;
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(streamURL, NSNumber, RTCVideoView) {
+RCT_CUSTOM_VIEW_PROPERTY(streamURL, NSString, RTCVideoView) {
   RTCVideoTrack *videoTrack;
 
   if (json) {
-    NSString *streamId = (NSString *)json;
+    NSString *streamReactTag = (NSString *)json;
 
     WebRTCModule *module = [self.bridge moduleForName:@"WebRTCModule"];
-    RTCMediaStream *stream = module.mediaStreams[streamId];
-    NSArray *videoTracks = stream.videoTracks;
+    RTCMediaStream *stream = [module streamForReactTag:streamReactTag];
+    NSArray *videoTracks = stream ? stream.videoTracks : nil;
 
-    videoTrack = videoTracks.count ? videoTracks[0] : nil;
+    videoTrack = videoTracks && videoTracks.count ? videoTracks[0] : nil;
+    if (!videoTrack) {
+      NSLog(@"No video stream for react tag: %@", streamReactTag);
+    }
   } else {
     videoTrack = nil;
   }

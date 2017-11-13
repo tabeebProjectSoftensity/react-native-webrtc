@@ -17,8 +17,9 @@ ANDROID_CPU_ABI_MAP = {
     'x64'   : 'x86_64'
 }
 ANDROID_BUILD_CPUS = ['arm', 'x86']
+IOS_BUILD_ARCHS = ['arm', 'arm64','x64','x86']
 
-GN_IOS_ARGS = """--args='additional_target_cpus=["arm64","x64","x86"] ios_enable_code_signing=false is_component_build=false is_debug=%s rtc_libvpx_build_vp9=true rtc_ios_enable_bitcode=false ios_deployment_target="9.0" target_cpu="arm" target_os="ios"'"""
+GN_IOS_ARGS = """--args='ios_enable_code_signing=false is_component_build=false is_debug=%s rtc_libvpx_build_vp9=true enable_ios_bitcode=false enable_dsyms=true ios_deployment_target="9.0" target_cpu="%s" target_os="ios"'"""
 GN_ANDROID_ARGS = """--args='is_component_build=false is_debug=%s rtc_libvpx_build_vp9=true target_cpu="%s" target_os="android"'"""
 
 
@@ -113,10 +114,11 @@ def build(target_dir, platform, debug):
 
     # Run GN
     if platform == 'ios':
-        gn_out_dir = 'out/%s' % build_type
-        gn_args = GN_IOS_ARGS % str(debug).lower()
-        gn_cmd = 'gn gen %s %s' % (gn_out_dir, gn_args)
-        sh(gn_cmd, env)
+        for arch in IOS_BUILD_ARCHS:
+            gn_out_dir = 'out/%s-%s' % (build_type, arch)
+            gn_args = GN_IOS_ARGS % (str(debug).lower(), arch)
+            gn_cmd = 'gn gen %s %s' % (gn_out_dir, gn_args)
+            sh(gn_cmd, env)
     else:
         for cpu in ANDROID_BUILD_CPUS:
             gn_out_dir = 'out/%s-%s' % (build_type, cpu)
@@ -126,31 +128,48 @@ def build(target_dir, platform, debug):
 
     # Build with Ninja
     if platform == 'ios':
-        ninja_cmd = 'ninja -C %s rtc_sdk_framework_objc' % gn_out_dir
-        sh(ninja_cmd, env)
+        for arch in IOS_BUILD_ARCHS:
+            gn_out_dir = 'out/%s-%s' % (build_type, arch)
+            ninja_cmd = 'ninja -C %s rtc_sdk_framework_objc' % gn_out_dir
+            sh(ninja_cmd, env)
     else:
         for cpu in ANDROID_BUILD_CPUS:
             gn_out_dir = 'out/%s-%s' % (build_type, cpu)
-            ninja_cmd = 'ninja -C %s libjingle_peerconnection_so libjingle_peerconnection_java' % gn_out_dir
+            ninja_cmd = 'ninja -C %s libwebrtc libjingle_peerconnection_so' % gn_out_dir
             sh(ninja_cmd, env)
 
     # Cleanup build dir
     rmr(build_dir)
+    mkdirp(build_dir)
 
     # Copy build artifacts to build directory
     if platform == 'ios':
+        # Framework
+        gn_out_dir = 'out/%s-%s' % (build_type, IOS_BUILD_ARCHS[0])
         shutil.copytree(os.path.join(gn_out_dir, 'WebRTC.framework'), os.path.join(build_dir, 'WebRTC.framework'))
+        out_lib_path = os.path.join(build_dir, 'WebRTC.framework', 'WebRTC')
+        os.unlink(out_lib_path)
+        slice_paths = [os.path.join('out/%s-%s' % (build_type, arch), 'WebRTC.framework', 'WebRTC') for arch in IOS_BUILD_ARCHS]
+        sh('lipo %s -create -output %s' % (' '.join(slice_paths), out_lib_path))
+        # dSYM
+        shutil.copytree(os.path.join(gn_out_dir, 'WebRTC.dSYM'), os.path.join(build_dir, 'WebRTC.dSYM'))
+        out_dsym_path = os.path.join(build_dir, 'WebRTC.dSYM', 'Contents', 'Resources', 'DWARF', 'WebRTC')
+        os.unlink(out_dsym_path)
+        dsym_slice_paths = [os.path.join('out/%s-%s' % (build_type, arch), 'WebRTC.dSYM', 'Contents', 'Resources', 'DWARF', 'WebRTC') for arch in IOS_BUILD_ARCHS]
+        sh('lipo %s -create -output %s' % (' '.join(dsym_slice_paths), out_dsym_path))
     else:
+        gn_out_dir = 'out/%s-%s' % (build_type, ANDROID_BUILD_CPUS[0])
+        shutil.copy(os.path.join(gn_out_dir, 'lib.java/webrtc/sdk/android/libwebrtc.jar'), build_dir)
+
         for cpu in ANDROID_BUILD_CPUS:
             lib_dir = os.path.join(build_dir, 'lib', ANDROID_CPU_ABI_MAP[cpu])
             mkdirp(lib_dir)
             gn_out_dir = 'out/%s-%s' % (build_type, cpu)
             shutil.copy(os.path.join(gn_out_dir, 'libjingle_peerconnection_so.so'), lib_dir)
-            shutil.copy(os.path.join(gn_out_dir, 'lib.java/webrtc/base/base_java.jar'), build_dir)
-            shutil.copy(os.path.join(gn_out_dir, 'lib.java/webrtc/sdk/android/libjingle_peerconnection_java.jar'), build_dir)
 
         os.chdir(build_dir)
         sh('jar cvfM libjingle_peerconnection.so.jar lib')
+        rmr('lib')
 
 
 if __name__ == "__main__":

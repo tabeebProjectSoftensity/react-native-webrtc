@@ -45,7 +45,18 @@ const DEFAULT_SDP_CONSTRAINTS = {
   mandatory: {
     OfferToReceiveAudio: true,
     OfferToReceiveVideo: true,
-  }
+  },
+  optional: [],
+};
+
+/**
+ * The default constraints of RTCPeerConnection's WebRTCModule.peerConnectionInit.
+ */
+const DEFAULT_PC_CONSTRAINTS = {
+  mandatory: {},
+  optional: [
+    { DtlsSrtpKeyAgreement: true },
+  ],
 };
 
 const PEER_CONNECTION_EVENTS = [
@@ -98,11 +109,7 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
     this._peerConnectionId = nextPeerConnectionId++;
     WebRTCModule.peerConnectionInit(
         configuration,
-        {
-          optional: [
-            { DtlsSrtpKeyAgreement: true }
-          ]
-        },
+        DEFAULT_PC_CONSTRAINTS,
         this._peerConnectionId);
     this._registerEvents();
   }
@@ -115,14 +122,21 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
     WebRTCModule.peerConnectionRemoveStream(stream.reactTag, this._peerConnectionId);
   }
 
+  /**
+   * Merge custom constraints with the default one. The custom one take precedence.
+   *
+   * @param {Object} options - webrtc constraints
+   * @return {Object} constraints - merged webrtc constraints
+   */
   _mergeMediaConstraints(options) {
     const constraints = Object.assign({}, DEFAULT_SDP_CONSTRAINTS);
     if (options) {
       if (options.mandatory) {
         constraints.mandatory = {...constraints.mandatory, ...options.mandatory};
       }
-      if (options.optional) {
-        constraints.optional = {...constraints.optional, ...options.optional};
+      if (options.optional && Array.isArray(options.optional)) {
+        // `optional` is an array, webrtc only finds first and ignore the rest if duplicate.
+        constraints.optional = options.optional.concat(constraints.optional);
       }
     }
     return constraints;
@@ -197,10 +211,13 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
         this._peerConnectionId,
         stats => {
           if (success) {
-            // It turns out that on Android it is faster to construct a single
+            // On both Android and iOS it is faster to construct a single
             // JSON string representing the array of StatsReports and have it
             // pass through the React Native bridge rather than the array of
-            // StatsReports.
+            // StatsReports. While the implementations do try to be faster in
+            // general, the stress is on being faster to pass through the React
+            // Native bridge which is a bottleneck that tends to be visible in
+            // the UI when there is congestion involving UI-related passing.
             if (typeof stats === 'string') {
               try {
                 stats = JSON.parse(stats);

@@ -8,6 +8,9 @@ import android.hardware.Camera;
 import org.webrtc.CameraVideoCapturer;
 
 class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
+    /**
+     * The {@link Log} tag with which {@code CameraEventsHandler} is to log.
+     */
     private final static String TAG = WebRTCModule.TAG;
     private int cameraID = -1;
 
@@ -22,11 +25,10 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
         }
     }
 
-    // Camera error handler - invoked when camera can not be opened
-    // or any camera exception happens on camera thread.
+    // Callback invoked when camera closed.
     @Override
-    public void onCameraError(String errorDescription) {
-        Log.d(TAG, String.format("CameraEventsHandler.onCameraError: errorDescription=%s", errorDescription));
+    public void onCameraClosed() {
+        Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable");
     }
 
     // Called when camera is disconnected.
@@ -35,16 +37,33 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
         Log.d(TAG, "CameraEventsHandler.onCameraDisconnected");
     }
 
+    // Camera error handler - invoked when camera can not be opened or any
+    // camera exception happens on camera thread.
+    @Override
+    public void onCameraError(String errorDescription) {
+        Log.d(
+            TAG,
+            "CameraEventsHandler.onCameraError: errorDescription="
+                + errorDescription);
+    }
+
     // Invoked when camera stops receiving frames
     @Override
     public void onCameraFreezed(String errorDescription) {
-        Log.d(TAG, String.format("CameraEventsHandler.onCameraFreezed: errorDescription=%s", errorDescription));
+        Log.d(
+            TAG,
+            "CameraEventsHandler.onCameraFreezed: errorDescription="
+                + errorDescription);
     }
 
     // Callback invoked when camera is opening.
     @Override
     public void onCameraOpening(String cameraName) {
-        Log.d(TAG, String.format("CameraEventsHandler.onCameraOpening: cameraName=%s", cameraName));
+        Log.d(
+            TAG,
+            "CameraEventsHandler.onCameraOpening: cameraName="
+                + cameraName);
+
         if (cameraName.contains("front")) {
             // Search for the front facing camera
             int numberOfCameras = Camera.getNumberOfCameras();
@@ -78,11 +97,5 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
     public void onFirstFrameAvailable() {
         Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable: " + cameraID);
         sendMessage(cameraID);
-    }
-
-    // Callback invoked when camera closed.
-    @Override
-    public void onCameraClosed() {
-        Log.d(TAG, "CameraEventsHandler.onFirstFrameAvailable");
     }
 }

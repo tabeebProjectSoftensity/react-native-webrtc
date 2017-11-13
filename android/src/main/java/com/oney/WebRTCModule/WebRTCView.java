@@ -1,5 +1,6 @@
 package com.oney.WebRTCModule;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
 import android.support.v4.view.ViewCompat;
@@ -12,8 +13,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.webrtc.EglBase;
-import org.webrtc.EglBase10;
-import org.webrtc.EglBase14;
 import org.webrtc.MediaStream;
 import org.webrtc.RendererCommon;
 import org.webrtc.RendererCommon.RendererEvents;
@@ -57,6 +56,7 @@ public class WebRTCView extends ViewGroup {
 
         try {
             Method m = WebRTCView.class.getMethod("isInLayout");
+
             if (boolean.class.isAssignableFrom(m.getReturnType())) {
                 isInLayout = m;
             }
@@ -363,16 +363,17 @@ public class WebRTCView extends ViewGroup {
      * possible) because layout-related state either of this instance or of
      * {@code surfaceViewRenderer} has changed.
      */
+    @SuppressLint("WrongCall")
     private void requestSurfaceViewRendererLayout() {
         // Google/WebRTC just call requestLayout() on surfaceViewRenderer when
-        // they change the value of its mirror or surfaceType property. 
+        // they change the value of its mirror or surfaceType property.
         getSurfaceViewRenderer().requestLayout();
         // The above is not enough though when the video frame's dimensions or
         // rotation change. The following will suffice.
         if (!invokeIsInLayout()) {
             onLayout(
-                    /* changed */ false,
-                    getLeft(), getTop(), getRight(), getBottom());
+                /* changed */ false,
+                getLeft(), getTop(), getRight(), getBottom());
         }
     }
 
@@ -510,49 +511,16 @@ public class WebRTCView extends ViewGroup {
         if (videoRenderer == null
                 && videoTrack != null
                 && ViewCompat.isAttachedToWindow(this)) {
-            SurfaceViewRenderer surfaceViewRenderer = getSurfaceViewRenderer();
+            EglBase.Context sharedContext = EglUtils.getRootEglBaseContext();
 
-            // XXX EglBase14 will report that isEGL14Supported() but its
-            // getEglConfig() will fail with a RuntimeException with message
-            // "Unable to find any matching EGL config". Fall back to EglBase10
-            // in the described scenario.
-            EglBase eglBase = null;
-            int[] configAttributes = EglBase.CONFIG_PLAIN;
-            Throwable throwable = null;
-
-            try {
-                if (EglBase14.isEGL14Supported()) {
-                    eglBase
-                        = new EglBase14(
-                                /* sharedContext */ null,
-                                configAttributes);
-                }
-            } catch (RuntimeException ex) {
-                // Fall back to EglBase10.
-                throwable = ex;
-            }
-            if (eglBase == null) {
-                try {
-                    eglBase
-                        = new EglBase10(
-                                /* sharedContext */ null,
-                                configAttributes);
-                } catch (RuntimeException ex) {
-                    // Neither EglBase14, nor EglBase10 succeeded to initialize.
-                    throwable = ex;
-                }
-            }
-            if (eglBase == null) {
+            if (sharedContext == null) {
                 // If SurfaceViewRenderer#init() is invoked, it will throw a
                 // RuntimeException which will very likely kill the application.
-                Log.e(TAG, "Failed to render a VideoTrack!", throwable);
+                Log.e(TAG, "Failed to render a VideoTrack!");
                 return;
             }
 
-            // The type of sharedContext will instruct SurfaceViewRenderer which
-            // EglBase implementation to utilize.
-            EglBase.Context sharedContext = eglBase.getEglBaseContext();
-
+            SurfaceViewRenderer surfaceViewRenderer = getSurfaceViewRenderer();
             surfaceViewRenderer.init(sharedContext, rendererEvents);
 
             videoRenderer = new VideoRenderer(surfaceViewRenderer);
