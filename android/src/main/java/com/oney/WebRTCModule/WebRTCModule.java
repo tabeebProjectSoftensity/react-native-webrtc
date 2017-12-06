@@ -667,9 +667,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
                     videoCapturer = enumerator.createCapturer(name, new CameraEventsHandler());
                     if (videoCapturer != null) {
                         Log.d(TAG, "create user specified camera " + name + " succeeded");
-                        VideoCapturerAndroid capturerAndroid = VideoCapturerAndroid.create(name, new CameraEventsHandler());
-                        VideoSourceContainer.getInstance().videoCapturer = capturerAndroid;
-                        return capturerAndroid;
+                        return videoCapturer;
                     } else {
                         Log.d(TAG, "create user specified camera " + name + " failed");
                         break; // fallback to facing mode
@@ -685,9 +683,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
                 videoCapturer = enumerator.createCapturer(name, new CameraEventsHandler());
                 if (videoCapturer != null) {
                     Log.d(TAG, "Create " + facingStr + " camera " + name + " succeeded");
-                    VideoCapturerAndroid capturerAndroid = VideoCapturerAndroid.create(name, new CameraEventsHandler());
-                    VideoSourceContainer.getInstance().videoCapturer = capturerAndroid;
-                    return capturerAndroid;                    
+                    return videoCapturer;
                 } else {
                     Log.d(TAG, "Create " + facingStr + " camera " + name + " failed");
                 }

@@ -12,9 +12,9 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
      * The {@link Log} tag with which {@code CameraEventsHandler} is to log.
      */
     private final static String TAG = WebRTCModule.TAG;
-    private int cameraID = -1;
+    private String cameraID = "-1";
 
-    private void sendMessage(int cameraId) {
+    private void sendMessage(String cameraId) {
         Log.d("sender", "Broadcasting message");
         if(WebRTCModule.staticContext != null) {
             Intent intent = new Intent("camera_id_detected");
@@ -64,32 +64,7 @@ class CameraEventsHandler implements CameraVideoCapturer.CameraEventsHandler {
             "CameraEventsHandler.onCameraOpening: cameraName="
                 + cameraName);
 
-        if (cameraName.contains("front")) {
-            // Search for the front facing camera
-            int numberOfCameras = Camera.getNumberOfCameras();
-            for (int i = 0; i < numberOfCameras; i++) {
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.getCameraInfo(i, info);
-                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                    Log.d(TAG, "Camera front found");
-                    cameraID = i;
-                    break;
-                }
-            }
-        }
-        else {
-            // Search for the front facing camera
-            int numberOfCameras = Camera.getNumberOfCameras();
-            for (int i = 0; i < numberOfCameras; i++) {
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.getCameraInfo(i, info);
-                if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    Log.d(TAG, "Camera back found");
-                    cameraID = i;
-                    break;
-                }
-            }
-        }
+        cameraID = cameraName;
     }
 
     // Callback invoked when first camera frame is available after camera is opened.
