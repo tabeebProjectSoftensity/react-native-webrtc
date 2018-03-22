@@ -145,7 +145,15 @@ class GetUserMediaImpl {
                     String message = "Create user-specified camera " + name;
                     if (videoCapturer != null) {
                         Log.d(TAG, message + " succeeded");
-                        VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                        try {
+                            VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                            VideoSourceContainer.getInstance().isCamera2Api = false;
+                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+                        }
                         return videoCapturer;
                     } else {
                         Log.d(TAG, message + " failed");
@@ -171,7 +179,15 @@ class GetUserMediaImpl {
                     = "Create " + facingMode + "-facing camera " + name;
                 if (videoCapturer != null) {
                     Log.d(TAG, message + " succeeded");
-                    VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                    try {
+                        VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.printStackTrace();
+                        VideoSourceContainer.getInstance().isCamera2Api = false;
+                        VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+                    }
                     return videoCapturer;
                 } else {
                     Log.d(TAG, message + " failed");
