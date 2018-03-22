@@ -147,6 +147,7 @@ class GetUserMediaImpl {
                         Log.d(TAG, message + " succeeded");
                         try {
                             VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
                         }
                         catch (Exception ex)
                         {
@@ -181,6 +182,7 @@ class GetUserMediaImpl {
                     Log.d(TAG, message + " succeeded");
                     try {
                         VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                        VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
                     }
                     catch (Exception ex)
                     {
