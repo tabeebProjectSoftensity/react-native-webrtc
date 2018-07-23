@@ -161,6 +161,18 @@ public class VideoCaptureController {
                     String message = "Create user-specified camera " + name;
                     if (videoCapturer != null) {
                         Log.d(TAG, message + " succeeded");
+
+                        try {
+                            VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                            VideoSourceContainer.getInstance().isCamera2Api = false;
+                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+                        }
+                        
                         return videoCapturer;
                     } else {
                         Log.d(TAG, message + " failed");
