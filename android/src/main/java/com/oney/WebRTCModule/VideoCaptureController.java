@@ -12,6 +12,7 @@ import org.webrtc.Camera2Enumerator;
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
 import org.webrtc.VideoCapturer;
+import org.webrtc.Camera2Capturer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,6 +131,18 @@ public class VideoCaptureController {
         }
     }
 
+    private void setVideoCapturer(VideoCapturer videoCapturer) {
+        try {
+            VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
+            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            VideoSourceContainer.getInstance().isCamera2Api = false;
+            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
+        }
+    }
+
     /**
      * Constructs a new {@code VideoCapturer} instance attempting to satisfy
      * specific constraints.
@@ -162,17 +175,8 @@ public class VideoCaptureController {
                     if (videoCapturer != null) {
                         Log.d(TAG, message + " succeeded");
 
-                        try {
-                            VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
-                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
-                        }
-                        catch (Exception ex)
-                        {
-                            ex.printStackTrace();
-                            VideoSourceContainer.getInstance().isCamera2Api = false;
-                            VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
-                        }
-                        
+                        setVideoCapturer(videoCapturer);
+
                         return videoCapturer;
                     } else {
                         Log.d(TAG, message + " failed");
@@ -195,6 +199,9 @@ public class VideoCaptureController {
                     = "Create camera " + name;
                 if (videoCapturer != null) {
                     Log.d(TAG, message + " succeeded");
+
+                    setVideoCapturer(videoCapturer);
+
                     return videoCapturer;
                 } else {
                     Log.d(TAG, message + " failed");
@@ -211,6 +218,9 @@ public class VideoCaptureController {
                 String message = "Create fallback camera " + name;
                 if (videoCapturer != null) {
                     Log.d(TAG, message + " succeeded");
+
+                    setVideoCapturer(videoCapturer);
+
                     return videoCapturer;
                 } else {
                     Log.d(TAG, message + " failed");
