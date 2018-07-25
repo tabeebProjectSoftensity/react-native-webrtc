@@ -189,7 +189,7 @@ public class VideoCaptureController {
 
         // Otherwise, use facingMode (defaulting to front/user facing).
         final boolean isFrontFacing
-            = facingMode == null || !facingMode.equals("environment");
+            = facingMode != null && facingMode.equals("user");
         for (String name : deviceNames) {
             if (!failedDevices.contains(name)
                     && enumerator.isFrontFacing(name) == isFrontFacing) {
