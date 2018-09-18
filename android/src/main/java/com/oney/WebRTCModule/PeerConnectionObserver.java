@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import android.support.annotation.Nullable;
 import android.util.Base64;
@@ -51,7 +52,7 @@ class PeerConnectionObserver implements PeerConnection.Observer {
      * buffer in an attempt to improve performance.
      */
     private SoftReference<StringBuilder> statsToJSONStringBuilder
-        = new SoftReference(null);
+        = new SoftReference<>(null);
 
     PeerConnectionObserver(WebRTCModule webRTCModule, int id) {
         this.webRTCModule = webRTCModule;
@@ -356,8 +357,8 @@ class PeerConnectionObserver implements PeerConnection.Observer {
             }
         }
 
-        if (streamReactTag == null){
-            streamReactTag = webRTCModule.getNextStreamUUID();
+        if (streamReactTag == null) {
+            streamReactTag = UUID.randomUUID().toString();
             remoteStreams.put(streamReactTag, mediaStream);
         }
 
