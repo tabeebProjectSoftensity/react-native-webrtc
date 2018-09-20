@@ -616,25 +616,6 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public WritableMap getCameraInfo(int index) {
-        CameraInfo info = new CameraInfo();
-
-        try {
-            Camera.getCameraInfo(index, info);
-        } catch (Exception e) {
-            Logging.e("CameraEnumerationAndroid", "getCameraInfo failed on index " + index, e);
-            return null;
-        }
-        WritableMap params = Arguments.createMap();
-        String facing = info.facing == 1 ? "front" : "back";
-        params.putString("label", "Camera " + index + ", Facing " + facing + ", Orientation " + info.orientation);
-        params.putString("id", "" + index);
-        params.putString("facing", facing);
-        params.putString("kind", "video");
-
-        return params;
-    }
-
     /**
      * Create video capturer via given facing mode
      * @param enumerator a <tt>CameraEnumerator</tt> provided by webrtc
