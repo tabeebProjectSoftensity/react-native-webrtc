@@ -18,8 +18,8 @@ static int DEFAULT_FPS    = 30;
     if (self) {
         _capturer = capturer;
 
-        // Default to the front camera.
-        _usingFrontCamera = YES;
+        // Default to the back camera.
+        _usingFrontCamera = NO;
 
         // Check the video contraints: examine facingMode and sourceId
         // and pick a default if neither are specified.
@@ -34,8 +34,8 @@ static int DEFAULT_FPS    = 30;
                 position = AVCaptureDevicePositionFront;
             } else {
                 // If the specified facingMode value is not supported, fall back
-                // to the front camera.
-                position = AVCaptureDevicePositionFront;
+                // to the back camera.
+                position = AVCaptureDevicePositionBack;
             }
 
             _usingFrontCamera = position == AVCaptureDevicePositionFront;
