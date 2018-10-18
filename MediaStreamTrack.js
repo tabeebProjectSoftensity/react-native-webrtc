@@ -25,7 +25,7 @@ type SourceInfo = {
   kind: string;
 };
 
-export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVENTS) {
+class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVENTS) {
   static getSources(success: (sources: Array<SourceInfo>) => void) {
     WebRTCModule.mediaStreamTrackGetSources(success);
   }
@@ -120,3 +120,5 @@ export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVE
     throw new Error('Not implemented.');
   }
 }
+
+export default MediaStreamTrack;
