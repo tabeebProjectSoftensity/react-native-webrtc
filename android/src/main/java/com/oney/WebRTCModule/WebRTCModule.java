@@ -614,6 +614,16 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
         }
     }
 
+    // <TABEEB> Reload camera after making snapshot. Double switch camera.
+    @ReactMethod
+    public void mediaStreamTrackReloadCamera(final String id) {
+        MediaStreamTrack track = getLocalTrack(id);
+        if (track != null) {
+            getUserMediaImpl.reloadCamera(id);
+        }
+    }
+    // </TABEEB>
+
     /**
      * Create video capturer via given facing mode
      * @param enumerator a <tt>CameraEnumerator</tt> provided by webrtc

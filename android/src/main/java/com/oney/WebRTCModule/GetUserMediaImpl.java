@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.webrtc.*;
+import org.webrtc.CameraVideoCapturer.*;
 
 /**
  * The implementation of {@code getUserMedia} extracted into a separate file in
@@ -254,6 +255,17 @@ class GetUserMediaImpl {
             track.mediaSource.dispose();
         }
     }
+    
+    // <TABEEB> Reload camera after making snapshot. Double switch camera.
+    void reloadCamera(String trackId) {
+        TrackPrivate track = tracks.get(trackId);
+        if (track != null && track.videoCapturer != null) {
+            SwitchHandler switchHandler = new SwitchHandler(track);
+
+            ((CameraVideoCapturer) track.videoCapturer).switchCamera(switchHandler);
+        }
+    }
+    // </TABEEB>
 
     void switchCamera(String trackId) {
         TrackPrivate track = tracks.get(trackId);

@@ -96,6 +96,18 @@ class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVENTS) {
     WebRTCModule.mediaStreamTrackSwitchCamera(this.id);
   }
 
+  // <TABEEB> Reload camera after making snapshot. Double switch camera.
+  reloadCamera() {
+    if (this.remote) {
+      throw new Error('Not implemented for remote tracks');
+    }
+    if (this.kind !== 'video') {
+      throw new Error('Only implemented for video tracks');
+    }
+    WebRTCModule.mediaStreamTrackReloadCamera(this.id);
+  }
+  // </TABEEB>
+
   applyConstraints() {
     throw new Error('Not implemented.');
   }
