@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.webrtc.*;
+import org.webrtc.CameraVideoCapturer.*;
 
 /**
  * The implementation of {@code getUserMedia} extracted into a separate file in
@@ -585,6 +586,35 @@ class GetUserMediaImpl {
             getReactApplicationContext(),
             permissions.toArray(new String[permissions.size()]),
             callback);
+    }
+
+    /**
+     * Tabeeb fix. Handler for switchCamera
+     */
+    public class SwitchHandler implements CameraSwitchHandler {
+        private TrackPrivate track;
+
+        public SwitchHandler(TrackPrivate track) {
+            this.track = track;
+        }
+
+        public void onCameraSwitchDone(boolean isFrontCamera) {
+            ((CameraVideoCapturer) this.track.videoCapturer).switchCamera(null);
+        }
+        public void onCameraSwitchError(String errorDescription) {
+        }
+    }
+
+    /**
+     * Tabeeb fix. Reload camera after making snapshot. Double switch camera.
+     */
+    void reloadCamera(String trackId) {
+        TrackPrivate track = tracks.get(trackId);
+        if (track != null && track.videoCapturer != null) {
+            SwitchHandler switchHandler = new SwitchHandler(track);
+
+            ((CameraVideoCapturer) track.videoCapturer).switchCamera(switchHandler);
+        }
     }
 
     void switchCamera(String trackId) {
