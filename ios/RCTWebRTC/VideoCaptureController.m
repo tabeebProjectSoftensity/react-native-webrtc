@@ -18,8 +18,14 @@ static int DEFAULT_FPS    = 30;
     if (self) {
         _capturer = capturer;
 
-        // Default to the back camera.
+        /**
+         * <TABEEB> Set default "environment" camera when a user stars a call.
+         *
+         * Original code:
+         * _usingFrontCamera = YES;
+         */
         _usingFrontCamera = NO;
+        // </TABEEB>
 
         // Check the video contraints: examine facingMode and sourceId
         // and pick a default if neither are specified.
@@ -35,7 +41,15 @@ static int DEFAULT_FPS    = 30;
             } else {
                 // If the specified facingMode value is not supported, fall back
                 // to the back camera.
+                
+                /**
+                * <TABEEB> Set default "environment" camera when a user stars a call.
+                *
+                * Original code:
+                * position = AVCaptureDevicePositionFront;
+                */
                 position = AVCaptureDevicePositionBack;
+                // </TABEEB>
             }
 
             _usingFrontCamera = position == AVCaptureDevicePositionFront;

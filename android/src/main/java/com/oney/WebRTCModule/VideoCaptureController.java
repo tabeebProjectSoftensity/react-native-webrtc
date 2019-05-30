@@ -115,6 +115,9 @@ public class VideoCaptureController {
         }
     }
 
+    /**
+     * <TABEEB> Provide camera api to use while a video call. It is used in VideoControl module.
+    */
     private void setVideoCapturer(VideoCapturer videoCapturer) {
         try {
             VideoSourceContainer.getInstance().camera2Capturer = (Camera2Capturer) videoCapturer;
@@ -126,6 +129,7 @@ public class VideoCaptureController {
             VideoSourceContainer.getInstance().videoCapturer = videoCapturer;
         }
     }
+    // </TABEEB>
 
     /**
      * Constructs a new {@code VideoCapturer} instance attempting to satisfy
@@ -159,7 +163,9 @@ public class VideoCaptureController {
                     if (videoCapturer != null) {
                         Log.d(TAG, message + " succeeded");
 
+                        // <TABEEB>
                         setVideoCapturer(videoCapturer);
+                        // </TABEEB>
 
                         return videoCapturer;
                     } else {
@@ -171,9 +177,15 @@ public class VideoCaptureController {
             }
         }
 
-        // Otherwise, use facingMode (defaulting to front/user facing).
-        final boolean isFrontFacing
-            = facingMode != null && facingMode.equals("user");
+        /**
+         * <TABEEB> Set default "environment" camera when a user stars a call.
+         *
+         * Original code:
+         * final boolean isFrontFacing = facingMode == null || !facingMode.equals("environment");
+         */
+        final boolean isFrontFacing = facingMode != null && facingMode.equals("user");
+        // </TABEEB>
+
         for (String name : deviceNames) {
             if (failedDevices.contains(name)) {
                 continue;
@@ -197,7 +209,9 @@ public class VideoCaptureController {
             if (videoCapturer != null) {
                 Log.d(TAG, message + " succeeded");
 
+                // <TABEEB>
                 setVideoCapturer(videoCapturer);
+                // </TABEEB>
 
                 return videoCapturer;
             } else {
@@ -215,7 +229,9 @@ public class VideoCaptureController {
                 if (videoCapturer != null) {
                     Log.d(TAG, message + " succeeded");
 
+                    // <TABEEB>
                     setVideoCapturer(videoCapturer);
+                    // </TABEEB>
 
                     return videoCapturer;
                 } else {
