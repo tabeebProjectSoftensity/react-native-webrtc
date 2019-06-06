@@ -28,5 +28,14 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    /**
+    * <TABEEB> Make webrtc library visible
+    *
+    * Original code:
+    * implementation fileTree(dir: 'libs', include: ['*.jar'])
+    */
+    compile files('libs/libwebrtc.jar')
+    compile files('libs/libjingle_peerconnection.so.jar')
+    // </TABEEB>
 }
