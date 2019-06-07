@@ -284,35 +284,6 @@ class GetUserMediaImpl {
     }
     // </TABEEB>
 
-    /**
-     * Tabeeb fix. Handler for switchCamera
-     */
-    public class SwitchHandler implements CameraSwitchHandler {
-        private TrackPrivate track;
-
-        public SwitchHandler(TrackPrivate track) {
-            this.track = track;
-        }
-
-        public void onCameraSwitchDone(boolean isFrontCamera) {
-            ((CameraVideoCapturer) this.track.videoCapturer).switchCamera(null);
-        }
-        public void onCameraSwitchError(String errorDescription) {
-        }
-    }
-
-    /**
-     * Tabeeb fix. Reload camera after making snapshot. Double switch camera.
-     */
-    void reloadCamera(String trackId) {
-        TrackPrivate track = tracks.get(trackId);
-        if (track != null && track.videoCapturer != null) {
-            SwitchHandler switchHandler = new SwitchHandler(track);
-
-            ((CameraVideoCapturer) track.videoCapturer).switchCamera(switchHandler);
-        }
-    }
-
     void switchCamera(String trackId) {
         TrackPrivate track = tracks.get(trackId);
         if (track != null && track.videoCaptureController != null) {
