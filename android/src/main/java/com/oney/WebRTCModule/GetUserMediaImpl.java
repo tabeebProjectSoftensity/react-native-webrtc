@@ -255,14 +255,31 @@ class GetUserMediaImpl {
             track.mediaSource.dispose();
         }
     }
-    
+
+    // <TABEEB> Reload camera after making snapshot. Handler for switchCamera.
+    public class SwitchHandler implements CameraSwitchHandler {
+        private TrackPrivate track;
+
+        public SwitchHandler(TrackPrivate track) {
+            this.track = track;
+        }
+
+        public void onCameraSwitchDone(boolean isFrontCamera) {
+            ((CameraVideoCapturer) this.track.videoCaptureController).switchCamera(null);
+        }
+        public void onCameraSwitchError(String errorDescription) {
+        }
+    }
+    // </TABEEB>
+
+
     // <TABEEB> Reload camera after making snapshot. Double switch camera.
     void reloadCamera(String trackId) {
         TrackPrivate track = tracks.get(trackId);
-        if (track != null && track.videoCapturer != null) {
+        if (track != null && track.videoCaptureController != null) {
             SwitchHandler switchHandler = new SwitchHandler(track);
 
-            ((CameraVideoCapturer) track.videoCapturer).switchCamera(switchHandler);
+            ((CameraVideoCapturer) track.videoCaptureController).switchCamera(switchHandler);
         }
     }
     // </TABEEB>
@@ -298,7 +315,7 @@ class GetUserMediaImpl {
          * @param track
          * @param mediaSource the {@code MediaSource} from which the specified
          * {@code code} was created
-         * @param videoCapturer the {@code VideoCapturer} from which the
+         * @param videoCaptureController the {@code VideoCaptureController} from which the
          * specified {@code mediaSource} was created if the specified
          * {@code track} is a {@link VideoTrack}
          */
