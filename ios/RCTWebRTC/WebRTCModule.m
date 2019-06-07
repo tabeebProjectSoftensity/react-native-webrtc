@@ -78,11 +78,6 @@
   return self;
 }
 
-+(BOOL)requiresMainQueueSetup
-{
-  return YES;
-}
-
 - (RTCMediaStream*)streamForReactTag:(NSString*)reactTag
 {
   RTCMediaStream *stream = _localStreams[reactTag];

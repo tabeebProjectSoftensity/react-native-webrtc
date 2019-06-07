@@ -9,11 +9,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-<<<<<<< HEAD
-=======
 #import "WebRTC/RTCVideoFrame.h"
->>>>>>> webrtc_master
 #import "WebRTC/RTCVideoRenderer.h"
 
 // Check if metal is supported in WebRTC.
