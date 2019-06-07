@@ -25,11 +25,7 @@ type SourceInfo = {
   kind: string;
 };
 
-export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVENTS) {
-  static getSources(success: (sources: Array<SourceInfo>) => void) {
-    WebRTCModule.mediaStreamTrackGetSources(success);
-  }
-
+class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVENTS) {
   _enabled: boolean;
   id: string;
   kind: string;
@@ -100,9 +96,7 @@ export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVE
     WebRTCModule.mediaStreamTrackSwitchCamera(this.id);
   }
 
-  /**
-   * Tabeeb fix. Reload camera after making snapshot. Double switch camera.
-   */
+  // <TABEEB> Reload camera after making snapshot. Double switch camera.
   reloadCamera() {
     if (this.remote) {
       throw new Error('Not implemented for remote tracks');
@@ -112,6 +106,7 @@ export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVE
     }
     WebRTCModule.mediaStreamTrackReloadCamera(this.id);
   }
+  // </TABEEB>
 
   applyConstraints() {
     throw new Error('Not implemented.');
@@ -133,3 +128,5 @@ export default class MediaStreamTrack extends EventTarget(MEDIA_STREAM_TRACK_EVE
     throw new Error('Not implemented.');
   }
 }
+
+export default MediaStreamTrack;
