@@ -27,6 +27,10 @@ static int DEFAULT_FPS    = 30;
         _usingFrontCamera = NO;
         // </TABEEB>
 
+        // <TABEEB> Set VideoCapturer for snapshots.
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"RTCVideoCapturerAdded" object:nil userInfo:@{@"VideoCapturer" : capturer}];
+        // </TABEEB>
+        
         // Check the video contraints: examine facingMode and sourceId
         // and pick a default if neither are specified.
         id facingMode = constraints[@"facingMode"];
