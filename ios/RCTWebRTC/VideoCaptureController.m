@@ -114,6 +114,10 @@ static int DEFAULT_FPS    = 30;
     _usingFrontCamera = !_usingFrontCamera;
 
     [self startCapture];
+    
+    // <TABEEB>
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RTCLocalStreamsUpdated" object:nil userInfo:@{@"useBackCamera" : @(!_usingFrontCamera)}];
+    // </TABEEB>
 }
 
 #pragma mark Private
