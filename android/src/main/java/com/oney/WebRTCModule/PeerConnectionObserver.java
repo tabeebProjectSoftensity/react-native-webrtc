@@ -109,6 +109,8 @@ class PeerConnectionObserver implements PeerConnection.Observer {
     }
 
     void close() {
+        Log.d(TAG, "PeerConnection.close() for " + id);
+
         // Close the PeerConnection first to stop any events.
         peerConnection.close();
 
@@ -122,9 +124,9 @@ class PeerConnectionObserver implements PeerConnection.Observer {
         }
 
         // Remove video track adapters
-        for (MediaStreamTrack track : remoteTracks.values()) {
-            if (track.kind().equals("video")) {
-                videoTrackAdapters.removeAdapter((VideoTrack) track);
+        for (MediaStream stream : remoteStreams.values()) {
+            for (VideoTrack videoTrack : stream.videoTracks) {
+                videoTrackAdapters.removeAdapter(videoTrack);
             }
         }
 
@@ -206,6 +208,7 @@ class PeerConnectionObserver implements PeerConnection.Observer {
         }
     }
 
+    @SuppressWarnings("deprecation") // TODO(saghul): getStats is deprecated.
     void getStats(String trackId, final Callback cb) {
         MediaStreamTrack track = null;
         if (trackId == null
@@ -213,12 +216,7 @@ class PeerConnectionObserver implements PeerConnection.Observer {
                 || (track = webRTCModule.getLocalTrack(trackId)) != null
                 || (track = remoteTracks.get(trackId)) != null) {
             peerConnection.getStats(
-                    new StatsObserver() {
-                        @Override
-                        public void onComplete(StatsReport[] reports) {
-                            cb.invoke(true, statsToJSON(reports));
-                        }
-                    },
+                reports -> cb.invoke(true, statsToJSON(reports)),
                     track);
         } else {
             Log.e(TAG, "peerConnectionGetStats() MediaStreamTrack not found for id: " + trackId);

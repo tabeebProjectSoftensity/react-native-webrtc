@@ -88,7 +88,11 @@ class GetUserMediaImpl {
         }
 
         PeerConnectionFactory pcFactory = webRTCModule.mFactory;
-        VideoSource videoSource = pcFactory.createVideoSource(videoCapturer);
+        EglBase.Context eglContext = EglUtils.getRootEglBaseContext();
+        SurfaceTextureHelper surfaceTextureHelper =
+            SurfaceTextureHelper.create("CaptureThread", eglContext);
+        VideoSource videoSource = pcFactory.createVideoSource(videoCapturer.isScreencast());
+        videoCapturer.initialize(surfaceTextureHelper, reactContext, videoSource.getCapturerObserver());
 
         String id = UUID.randomUUID().toString();
         VideoTrack track = pcFactory.createVideoTrack(id, videoSource);
@@ -107,6 +111,11 @@ class GetUserMediaImpl {
 
         for(int i = 0; i < devices.length; ++i) {
             WritableMap params = Arguments.createMap();
+            if (cameraEnumerator.isFrontFacing(devices[i])) {
+               params.putString("facing", "front");
+            } else {
+                params.putString("facing", "back");
+            }
             params.putString("deviceId", "" + i);
             params.putString("groupId", "");
             params.putString("label", devices[i]);
@@ -122,25 +131,6 @@ class GetUserMediaImpl {
         array.pushMap(audio);
 
         return array;
-    }
-
-    /**
-     * Retrieves "facingMode" constraint value.
-     *
-     * @param mediaConstraints a {@code ReadableMap} which represents "GUM"
-     * constraints argument.
-     * @return String value of "facingMode" constraints in "GUM" or
-     * {@code null} if not specified.
-     */
-    private String getFacingMode(ReadableMap mediaConstraints) {
-        return
-            mediaConstraints == null
-                ? null
-                : ReactBridgeUtil.getMapStrValue(mediaConstraints, "facingMode");
-    }
-
-    private ReactApplicationContext getReactApplicationContext() {
-        return reactContext;
     }
 
     MediaStreamTrack getTrack(String id) {
