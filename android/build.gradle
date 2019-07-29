@@ -28,7 +28,6 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-
     /**
     * <TABEEB> Make webrtc library visible
     *
