@@ -1,12 +1,12 @@
 {
   "name": "react-native-webrtc",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/react-native-webrtc/react-native-webrtc.git"
   },
   "nativePackage": true,
-  "description": "WebRTC for React Native",
+  "description": "WebRTC 1.69.2 for React Native",
   "author": {
     "name": "Oney",
     "email": "appdevoney@gmail.com"
@@ -22,7 +22,8 @@
   "dependencies": {
     "base64-js": "^1.1.2",
     "event-target-shim": "^1.0.5",
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "uuid": "^3.3.2"
   },
   "peerDependencies": {
     "react-native": ">=0.40.0"
