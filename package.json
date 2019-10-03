@@ -1,12 +1,12 @@
 {
   "name": "react-native-webrtc",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/react-native-webrtc/react-native-webrtc.git"
   },
   "nativePackage": true,
-  "description": "WebRTC 1.69.2 for React Native",
+  "description": "WebRTC 1.75.0 for React Native",
   "author": {
     "name": "Oney",
     "email": "appdevoney@gmail.com"
