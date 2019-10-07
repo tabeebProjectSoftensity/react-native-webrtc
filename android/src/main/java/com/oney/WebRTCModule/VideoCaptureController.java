@@ -87,6 +87,39 @@ public class VideoCaptureController {
             return false;
         }
     }
+    
+    public void switchCamera() {
+        if (videoCapturer instanceof CameraVideoCapturer) {
+            CameraVideoCapturer capturer = (CameraVideoCapturer) videoCapturer;
+            String[] deviceNames = cameraEnumerator.getDeviceNames();
+            int deviceCount = deviceNames.length;
+
+            // Nothing to switch to.
+            if (deviceCount < 2) {
+                return;
+            }
+
+            // The usual case.
+            if (deviceCount == 2) {
+                capturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
+                    @Override
+                    public void onCameraSwitchDone(boolean b) {
+                        isFrontFacing = b;
+                    }
+
+                    @Override
+                    public void onCameraSwitchError(String s) {
+                        Log.e(TAG, "Error switching camera: " + s);
+                    }
+                });
+                return;
+            }
+
+            // If we are here the device has more than 2 cameras. Cycle through them
+            // and switch to the first one of the desired facing mode.
+            switchCamera(!isFrontFacing, deviceCount);
+        }
+    }
 
     /**
      * <TABEEB> Provide camera api to use while a video call. It is used in VideoControl module.
